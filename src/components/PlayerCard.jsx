@@ -2,30 +2,21 @@
 import React from 'react';
 import '../styles/Card.css';
 
+import { getSimulatedStat } from '../utils/squadUtils';
+
 const PlayerCard = ({ player, onClick, style, showRemove, onRemove }) => {
     if (!player) return null;
 
     // Helper: Use images.weserv.nl proxy to fix CORS issues for export 
-    // It is generally more robust for handling various image headers than wsrv.nl directly
     const getCorsUrl = (url) => {
         if (!url) return null;
         const cleanUrl = url.replace(/^https?:\/\//, '');
         return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&output=png`;
     };
 
-    // Helper to generate a consistent sub-stat based on string hash
-    const getSimulatedStat = (id, salt) => {
-        const str = id + salt;
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        return 60 + Math.abs(hash % 40); // 60-99
-    };
-
-    const rating = player.rating || getSimulatedStat(player.idPlayer || player.strPlayer, 'rating') + 20;
+    const rating = player.rating || (95 + Math.abs(getSimulatedStat(player.idPlayer || '0', 'r') % 5));
     const isSpecial = rating >= 90;
-    const displayRating = player.customRating || (95 + Math.abs(getSimulatedStat(player.idPlayer || '0', 'r') % 5));
+    const displayRating = player.customRating || rating;
 
     // Determine positions and shorter nation names if possible
     const position = player.strPosition ?

@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
 import { useSquad } from './hooks/useSquad';
 import Pitch from './components/Pitch';
 import PlayerSearch from './components/PlayerSearch';
 import FormationSelector from './components/FormationSelector';
+import SquadStats from './components/SquadStats';
+import { calculateSquadStats, calculateChemistry } from './utils/squadUtils';
 import domToImage from 'dom-to-image';
 import './index.css';
 
@@ -14,6 +15,12 @@ function App() {
   const [fileSize, setFileSize] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  const squadStats = calculateSquadStats(squad);
+  const chemistry = calculateChemistry(squad, formation);
+
+
+
 
   const handlePositionClick = (posId) => {
     setSelectedPosition(posId);
@@ -143,6 +150,12 @@ function App() {
       </header>
 
       <main style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+        {/* Squad Statistics Panel */}
+        {squadStats && (
+          <SquadStats stats={squadStats} chemistry={chemistry} />
+        )}
+
         <Pitch
           formationStr={formation}
           squad={squad}

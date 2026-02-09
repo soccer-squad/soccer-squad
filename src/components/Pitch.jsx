@@ -49,7 +49,7 @@ const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer, onEditPla
                             top: `${pos.top}%`,
                             transform: 'translate(-50%, -50%)',
                             zIndex: 10,
-                            width: player ? '14%' : '10%', // Larger if occupied
+                            width: player ? '12.5%' : '9%', // Slightly smaller to prevent overlap
                             aspectRatio: '0.7',
                             transition: 'all 0.3s ease'
                         }}

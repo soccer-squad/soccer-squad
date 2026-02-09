@@ -54,33 +54,38 @@ function App() {
   };
 
   const handleDownload = async () => {
-    const pitch = document.getElementById('pitch-container');
+    const pitch = document.getElementById('export-area');
     if (!pitch) return;
 
     setIsGenerating(true);
     setDownloadUrl(null);
-    setStatusMessage('Rendering High-Res...');
+    setStatusMessage('Rendering High-Res (Letter)...');
 
-    // 1. Prepare styling for capture
-    // To fix blurriness, we scale up.
-    // To fix alignment, we lock margins and position in the cloned node.
-    const scale = 2; // 2x resolution
-    const width = pitch.offsetWidth;
-    const height = pitch.offsetHeight;
+    // Letter size (8.5 x 11) proportions
+    // Target width for capture is 850px, height 1100px (100 DPI base)
+    // Then we scale by 'scale' for high quality
+    const targetWidth = 850;
+    const targetHeight = 1100;
+    const scale = 2; // 2x resolution (1700 x 2200)
 
     // Force styles during capture
     const options = {
       quality: 0.95,
-      width: width * scale,
-      height: height * scale,
-      bgcolor: '#ffffff',
+      width: targetWidth * scale,
+      height: targetHeight * scale,
+      bgcolor: '#0f0f0f', // Dark background matching app
       style: {
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
-        width: `${width}px`,
-        height: `${height}px`,
-        margin: '0', // Reset margins to fix shift
-        left: '0',  // Reset position
+        width: `${targetWidth}px`,
+        height: `${targetHeight}px`,
+        padding: '40px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0',
+        left: '0',
         top: '0'
       },
       cacheBust: true,
@@ -176,19 +181,28 @@ function App() {
 
       <main style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        {/* Squad Statistics Panel */}
-        {squadStats && (
-          <SquadStats stats={squadStats} chemistry={chemistry} />
-        )}
+        <div id="export-area" style={{
+          width: '850px', // Letter Width
+          minHeight: '1100px', // Letter Height
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '20px',
+          background: 'transparent' // Capture uses its own bgcolor
+        }}>
+          {/* Squad Statistics Panel */}
+          {squadStats && (
+            <SquadStats stats={squadStats} chemistry={chemistry} />
+          )}
 
-        <Pitch
-          formationStr={formation}
-          squad={squad}
-          onPositionClick={handlePositionClick}
-          onRemovePlayer={removePlayer}
-          onEditPlayer={(posId) => setEditingPosition(posId)}
-
-        />
+          <Pitch
+            formationStr={formation}
+            squad={squad}
+            onPositionClick={handlePositionClick}
+            onRemovePlayer={removePlayer}
+            onEditPlayer={(posId) => setEditingPosition(posId)}
+          />
+        </div>
       </main>
 
       {/* Manual Download Modal */}

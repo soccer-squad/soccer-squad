@@ -4,7 +4,7 @@ import { FORMATIONS } from '../data/formations';
 
 const FormationSelector = ({ currentFormation, onChange }) => {
     return (
-        <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem', zIndex: 50, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', zIndex: 50, position: 'relative' }}>
             <label htmlFor="formation" style={{ color: 'var(--text-muted)', fontWeight: 'bold' }}>FORMATION</label>
             <select
                 id="formation"

@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useSquad } from './hooks/useSquad';
+
 import Pitch from './components/Pitch';
 import PlayerSearch from './components/PlayerSearch';
 import FormationSelector from './components/FormationSelector';
 import SquadStats from './components/SquadStats';
+import SquadManager from './components/SquadManager';
+import PlayerEditor from './components/PlayerEditor';
 import { calculateSquadStats, calculateChemistry } from './utils/squadUtils';
 import domToImage from 'dom-to-image';
 import './index.css';
 
 function App() {
-  const { squad, formation, setFormation, addPlayer, removePlayer, resetSquad } = useSquad();
+  const {
+    squad, formation, setFormation, addPlayer, removePlayer, resetSquad,
+    updatePlayerStats, savedSquads, saveSnapshot, loadSnapshot, deleteSnapshot, importSquad
+  } = useSquad();
+
   const [selectedPosition, setSelectedPosition] = useState(null);
+  const [editingPosition, setEditingPosition] = useState(null); // For PlayerEditor
+  const [showSquadManager, setShowSquadManager] = useState(false); // For SquadManager
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [fileSize, setFileSize] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -111,7 +120,23 @@ function App() {
           FC 26 <span style={{ color: 'var(--text)' }}>Squad Builder</span>
         </h1>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '1rem', alignItems: 'center' }}>
+
           <FormationSelector currentFormation={formation} onChange={setFormation} />
+          <button
+            onClick={() => setShowSquadManager(true)}
+            style={{
+              color: '#fff',
+              border: '1px solid #fff',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontFamily: 'var(--font-display)',
+              cursor: 'pointer',
+              background: 'transparent'
+            }}
+          >
+            MANAGE / SAVES
+          </button>
           <button
             onClick={resetSquad}
             style={{
@@ -161,6 +186,8 @@ function App() {
           squad={squad}
           onPositionClick={handlePositionClick}
           onRemovePlayer={removePlayer}
+          onEditPlayer={(posId) => setEditingPosition(posId)}
+
         />
       </main>
 
@@ -285,6 +312,30 @@ function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {showSquadManager && (
+        <SquadManager
+          squad={squad}
+          formation={formation}
+          savedSquads={savedSquads}
+          onSaveSnapshot={saveSnapshot}
+          onLoadSnapshot={(snap) => { loadSnapshot(snap); setShowSquadManager(false); }}
+          onDeleteSnapshot={deleteSnapshot}
+          onImport={(data) => { importSquad(data); setShowSquadManager(false); }}
+          onClose={() => setShowSquadManager(false)}
+        />
+      )}
+
+      {editingPosition && squad[editingPosition] && (
+        <PlayerEditor
+          player={squad[editingPosition]}
+          onSave={(updatedPlayer) => {
+            updatePlayerStats(editingPosition, updatedPlayer);
+            setEditingPosition(null);
+          }}
+          onCancel={() => setEditingPosition(null)}
+        />
       )}
 
       {/* Styles for simple animation */}

@@ -13,6 +13,15 @@ export const getSimulatedStat = (id, salt) => {
 
 export const getPlayerStats = (player) => {
     if (!player) return null;
+
+    // If we have custom stats saved, use them
+    if (player.customStats) {
+        return {
+            ...player.customStats,
+            // Ensure rating is top level too if needed, but we store it in customStats
+        };
+    }
+
     const pid = player.idPlayer || player.strPlayer;
     return {
         pac: getSimulatedStat(pid, 'pac'),
@@ -21,7 +30,7 @@ export const getPlayerStats = (player) => {
         dri: getSimulatedStat(pid, 'dri'),
         def: getSimulatedStat(pid, 'def'),
         phy: getSimulatedStat(pid, 'phy'),
-        rating: player.customRating || (95 + Math.abs(getSimulatedStat(pid, 'r') % 5)) // High ratings for fun
+        rating: player.customRating || (95 + Math.abs(getSimulatedStat(pid, 'r') % 5))
     };
 };
 

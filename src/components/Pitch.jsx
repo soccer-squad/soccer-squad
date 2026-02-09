@@ -3,7 +3,7 @@ import React from 'react';
 import { FORMATIONS } from '../data/formations';
 import PlayerCard from './PlayerCard';
 
-const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer }) => {
+const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer, onEditPlayer }) => { // Added onEditPlayer
     const formation = FORMATIONS[formationStr] || FORMATIONS['4-4-2'];
 
     return (
@@ -61,6 +61,7 @@ const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer }) => {
                                 style={{ width: '100%', height: '100%', fontSize: '0.5em' }} // Scale down
                                 showRemove={true}
                                 onRemove={() => onRemovePlayer(pos.id)}
+                                onEdit={(e) => { e.stopPropagation(); onEditPlayer(pos.id); }} // Pass edit handler
                             />
                         ) : (
                             <div style={{

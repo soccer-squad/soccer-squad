@@ -4,7 +4,7 @@ import '../styles/Card.css';
 
 import { getSimulatedStat } from '../utils/squadUtils';
 
-const PlayerCard = ({ player, onClick, style, showRemove, onRemove }) => {
+const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) => {
     if (!player) return null;
 
     // Helper: Use images.weserv.nl proxy to fix CORS issues for export 
@@ -119,15 +119,38 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove }) => {
             </div>
 
             {showRemove && (
-                <button
-                    className="remove-btn"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove && onRemove();
-                    }}
-                >
-                    ✕
-                </button>
+                <>
+                    <button
+                        className="remove-btn"
+                        onClick={(e) => { e.stopPropagation(); onRemove && onRemove(); }}
+                        title="Remove Player"
+                    >
+                        ✕
+                    </button>
+                    {onEdit && (
+                        <button
+                            className="edit-btn"
+                            onClick={onEdit}
+                            title="Edit Attributes"
+                            style={{
+                                position: 'absolute',
+                                top: '-5px',
+                                left: '-5px',
+                                background: '#333',
+                                color: '#fff',
+                                border: '1px solid #555',
+                                borderRadius: '50%',
+                                width: '20px',
+                                height: '20px',
+                                fontSize: '10px',
+                                cursor: 'pointer',
+                                zIndex: 20
+                            }}
+                        >
+                            ✎
+                        </button>
+                    )}
+                </>
             )}
         </div>
     );

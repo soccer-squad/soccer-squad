@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSquad } from './hooks/useSquad';
 
 import Pitch from './components/Pitch';
@@ -28,9 +28,25 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('');
   const [printMode, setPrintMode] = useState(true); // Default to print-friendly 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   const squadStats = calculateSquadStats(squad);
   const chemistry = calculateChemistry(squad, formation);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedPosition(null);
+        setEditingPosition(null);
+        setViewingPosition(null);
+        setShowSquadManager(false);
+        setIsExportModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
 
 
@@ -69,12 +85,11 @@ function App() {
     setDownloadUrl(null);
     setStatusMessage('Rendering High-Res (Letter)...');
 
-    // Letter size (8.5 x 11) proportions
     // Target width for capture is 850px, height 1100px (100 DPI base)
     // Then we scale by 'scale' for high quality
-    const targetWidth = 850;
-    const targetHeight = 1100;
-    const scale = 2; // 2x resolution (1700 x 2200)
+    let targetWidth = isLandscape ? 1100 : 850;
+    let targetHeight = isLandscape ? 850 : 1100;
+    const scale = 2; // 2x resolution
 
     // Force styles during capture
     const options = {
@@ -193,13 +208,15 @@ function App() {
       <main style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         <div id="export-area" style={{
-          width: '850px', // Letter Width
-          minHeight: '1100px', // Letter Height
+          width: isGenerating ? (isLandscape ? '1100px' : '850px') : '100%',
+          maxWidth: isGenerating ? 'none' : '1200px',
+          minHeight: isGenerating ? (isLandscape ? '850px' : '1100px') : 'auto',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '20px',
-          background: 'transparent' // Capture uses its own bgcolor
+          justifyContent: isGenerating ? 'center' : 'flex-start',
+          padding: isGenerating ? '40px' : '20px',
+          background: 'transparent'
         }}>
           {/* Squad Statistics Panel */}
           {squadStats && (
@@ -213,6 +230,7 @@ function App() {
             onRemovePlayer={removePlayer}
             onEditPlayer={(posId) => setEditingPosition(posId)}
             printMode={isGenerating && printMode}
+            isLandscape={isLandscape}
           />
         </div>
       </main>
@@ -267,8 +285,29 @@ function App() {
                     />
                     Print Friendly Mode
                   </label>
-                  <p style={{ fontSize: '12px', color: '#888', marginTop: '8px', marginLeft: '28px' }}>
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '4px', marginLeft: '28px', marginBottom: '15px' }}>
                     Removes dark backgrounds and uses black text. Better for printing!
+                  </p>
+
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    color: '#fff',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={isLandscape}
+                      onChange={(e) => setIsLandscape(e.target.checked)}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    Landscape Orientation
+                  </label>
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '4px', marginLeft: '28px' }}>
+                    Rotates export 90 degrees to fill landscape paper.
                   </p>
                 </div>
 
@@ -382,6 +421,88 @@ function App() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Search Modal */}
+      {selectedPosition && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 2000,
+          backdropFilter: 'blur(5px)'
+        }}
+          onClick={() => setSelectedPosition(null)}
+        >
+          <div className="modal-content" style={{
+            background: 'var(--surface)',
+            width: '90%', maxWidth: '500px',
+            padding: '20px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            animation: 'slideUp 0.3s ease'
+          }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '15px' }}>Select Player for {selectedPosition.toUpperCase()}</h3>
+            <PlayerSearch onSelectPlayer={handlePlayerSelect} />
+            <button
+              onClick={() => setSelectedPosition(null)}
+              style={{
+                marginTop: '15px',
+                width: '100%',
+                padding: '10px',
+                background: 'rgba(255,255,255,0.1)',
+                color: '#fff',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showSquadManager && (
+        <SquadManager
+          squad={squad}
+          formation={formation}
+          savedSquads={savedSquads}
+          onSaveSnapshot={saveSnapshot}
+          onLoadSnapshot={(snap) => { loadSnapshot(snap); setShowSquadManager(false); }}
+          onDeleteSnapshot={deleteSnapshot}
+          onImport={(data) => { importSquad(data); setShowSquadManager(false); }}
+          onClose={() => setShowSquadManager(false)}
+        />
+      )}
+
+      {editingPosition && squad[editingPosition] && (
+        <PlayerEditor
+          player={squad[editingPosition]}
+          onSave={(updatedPlayer) => {
+            updatePlayerStats(editingPosition, updatedPlayer);
+            setEditingPosition(null);
+          }}
+          onCancel={() => setEditingPosition(null)}
+        />
+      )}
+
+      {viewingPosition && squad[viewingPosition] && (
+        <PlayerDetailsModal
+          player={squad[viewingPosition]}
+          onClose={() => setViewingPosition(null)}
+          onEdit={() => {
+            setEditingPosition(viewingPosition);
+            setViewingPosition(null);
+          }}
+          onRemove={() => {
+            removePlayer(viewingPosition);
+            setViewingPosition(null);
+          }}
+        />
       )}
 
       {/* Styles for simple animation */}

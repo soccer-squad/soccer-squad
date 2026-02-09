@@ -3,7 +3,7 @@ import React from 'react';
 import { FORMATIONS } from '../data/formations';
 import PlayerCard from './PlayerCard';
 
-const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer, onEditPlayer, printMode }) => { // Added printMode
+const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer, onEditPlayer, printMode, isLandscape }) => {
     const formation = FORMATIONS[formationStr] || FORMATIONS['4-4-2'];
 
     const lineColor = printMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)';
@@ -12,7 +12,7 @@ const Pitch = ({ formationStr, squad, onPositionClick, onRemovePlayer, onEditPla
         <div id="pitch-container" className="pitch-container" style={{
             position: 'relative',
             width: '100%',
-            maxWidth: '800px',
+            maxWidth: (printMode && isLandscape) ? '1000px' : '800px',
             height: '0',
             paddingBottom: '65%', // Aspect ratio for pitch
             background: printMode ? 'transparent' : 'linear-gradient(to bottom, #1d4e28 0%, #2f7a40 50%, #1d4e28 100%)',

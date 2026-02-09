@@ -79,13 +79,6 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
                             )}
                         </div>
 
-                        <div className="club-badge" title={player.strTeam}>
-                            {player.strTeamBadge ? (
-                                <img src={getCorsUrl(player.strTeamBadge)} alt="Club" crossOrigin="anonymous" />
-                            ) : (
-                                <span style={{ fontSize: '12px' }}>⚽</span>
-                            )}
-                        </div>
                     </div>
 
                     <div className="player-image-container">

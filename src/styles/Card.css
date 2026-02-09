@@ -102,7 +102,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 2px;
+    margin-top: 4px;
+    margin-left: -4px
 }
 
 .club-badge img {
@@ -139,8 +140,7 @@
     padding-top: 5px;
     padding-bottom: 15%;
 
-    /* Dark semi-transparent background for readability */
-    background: rgba(0, 0, 0, 0.6);
+
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     z-index: 10;
@@ -148,7 +148,6 @@
 
 .card-special .card-bottom-section {
     /* Blueish dark tint for specials */
-    background: linear-gradient(to bottom, rgba(0, 20, 60, 0.7) 0%, rgba(0, 10, 30, 0.9) 100%);
     color: #fff;
     border-top: 1px solid rgba(0, 242, 255, 0.3);
 }
@@ -157,7 +156,7 @@
     font-size: 1.1em;
     font-weight: 700;
     letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     width: 85%;
     text-align: center;

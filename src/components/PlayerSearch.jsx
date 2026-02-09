@@ -91,7 +91,7 @@ const PlayerSearch = ({ onSelectPlayer }) => {
                             />
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 'bold' }}>{player.strPlayer}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{player.strTeam} - {player.strNationality}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{player.strTeam === '_Retired Soccer' || player.strTeam === '_Retired' ? '(Retired)' : player.strTeam} - {player.strNationality}</div>
                             </div>
                             <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
                                 {/* Show a hint of rating? */}

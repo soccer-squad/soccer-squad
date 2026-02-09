@@ -116,7 +116,7 @@ const PlayerDetailsModal = ({ player, onClose, onEdit, onRemove }) => {
                         <div style={{ display: 'flex', gap: '15px', color: 'var(--accent)', fontWeight: 'bold', marginBottom: '15px' }}>
                             <span>{player.strPosition}</span>
                             <span>•</span>
-                            <span>{player.strTeam}</span>
+                            <span>{player.strTeam === '_Retired Soccer' || player.strTeam === '_Retired' ? '(Retired)' : player.strTeam}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '8px 15px', borderRadius: '4px' }}>

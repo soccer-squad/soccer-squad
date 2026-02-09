@@ -2,7 +2,7 @@
 export const CARD_DESIGNS = {
     'standard': {
         id: 'standard',
-        name: 'FC 26 Standard (CSS)',
+        name: 'Standard (CSS)',
         type: 'css',
         className: 'fut-card-bg'
     },

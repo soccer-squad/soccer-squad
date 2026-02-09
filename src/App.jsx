@@ -145,7 +145,7 @@ function App() {
     <div className="app-container" style={{ paddingBottom: '50px' }}>
       <header style={{ padding: '1.5rem', textAlign: 'center', background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'sticky', top: 0, zIndex: 1000 }}>
         <h1 style={{ fontSize: '2.5rem', color: 'var(--primary)', textShadow: '0 0 20px rgba(0,255,136,0.3)', margin: 0 }}>
-          FC 26 <span style={{ color: 'var(--text)' }}>Squad Builder</span>
+          Soccer <span style={{ color: 'var(--text)' }}>Squad Builder</span>
         </h1>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '1rem', alignItems: 'center' }}>
 

@@ -37,7 +37,8 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit, prin
             'netherlands': 'nl', 'belgium': 'be', 'usa': 'us', 'uruguay': 'uy',
             'croatia': 'hr', 'morocco': 'ma', 'japan': 'jp', 'south korea': 'kr',
             'senegal': 'sn', 'poland': 'pl', 'sweden': 'se', 'denmark': 'dk',
-            'norway': 'no', 'colombia': 'co', 'chile': 'cl', 'mexico': 'mx'
+            'norway': 'no', 'colombia': 'co', 'chile': 'cl', 'mexico': 'mx',
+            'turkey': 'tr', 'türkiye': 'tr'
         };
         return map[n] || n.substring(0, 2); // Fallback to first 2 chars
     };

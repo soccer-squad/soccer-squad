@@ -16,3 +16,26 @@ export const searchPlayers = async (query) => {
         return [];
     }
 };
+
+export const fetchWikiBio = async (playerName) => {
+    try {
+        // Use Wikipedia Text Extract API
+        // First try full name
+        let url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(playerName.replace(/ /g, '_'))}`;
+        let response = await fetch(url);
+
+        if (!response.ok) {
+            // Try adding "(footballer)" to query
+            url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(playerName.replace(/ /g, '_'))}_(footballer)`;
+            response = await fetch(url);
+        }
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        return data.extract || null;
+    } catch (err) {
+        console.error('Wiki fetch failed:', err);
+        return null;
+    }
+};

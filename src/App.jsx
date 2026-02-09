@@ -7,6 +7,7 @@ import FormationSelector from './components/FormationSelector';
 import SquadStats from './components/SquadStats';
 import SquadManager from './components/SquadManager';
 import PlayerEditor from './components/PlayerEditor';
+import PlayerDetailsModal from './components/PlayerDetailsModal';
 import { calculateSquadStats, calculateChemistry } from './utils/squadUtils';
 import domToImage from 'dom-to-image';
 import './index.css';
@@ -19,6 +20,7 @@ function App() {
 
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [editingPosition, setEditingPosition] = useState(null); // For PlayerEditor
+  const [viewingPosition, setViewingPosition] = useState(null); // For PlayerDetailsModal
   const [showSquadManager, setShowSquadManager] = useState(false); // For SquadManager
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [fileSize, setFileSize] = useState(0);
@@ -32,7 +34,11 @@ function App() {
 
 
   const handlePositionClick = (posId) => {
-    setSelectedPosition(posId);
+    if (squad[posId]) {
+      setViewingPosition(posId);
+    } else {
+      setSelectedPosition(posId);
+    }
   };
 
   const handlePlayerSelect = (player) => {
@@ -349,6 +355,21 @@ function App() {
             setEditingPosition(null);
           }}
           onCancel={() => setEditingPosition(null)}
+        />
+      )}
+
+      {viewingPosition && squad[viewingPosition] && (
+        <PlayerDetailsModal
+          player={squad[viewingPosition]}
+          onClose={() => setViewingPosition(null)}
+          onEdit={() => {
+            setEditingPosition(viewingPosition);
+            setViewingPosition(null);
+          }}
+          onRemove={() => {
+            removePlayer(viewingPosition);
+            setViewingPosition(null);
+          }}
         />
       )}
 

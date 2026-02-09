@@ -4,7 +4,7 @@ import '../styles/Card.css';
 
 import { getSimulatedStat } from '../utils/squadUtils';
 
-const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) => {
+const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit, printMode }) => { // Added printMode
     if (!player) return null;
 
     // Helper: Use images.weserv.nl proxy to fix CORS issues for export 
@@ -46,20 +46,28 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
     const flagUrl = nationCode ? `https://flagcdn.com/w40/${nationCode}.png` : null;
     const playerImage = player.strCutout || player.strThumb || player.strRender;
 
+    const textColor = printMode ? '#000' : '#fff';
+
     return (
         <div
-            className={`player-card-container ${isSpecial ? 'card-special' : ''}`}
-            style={style}
+            className={`player-card-container ${isSpecial && !printMode ? 'card-special' : ''} ${printMode ? 'print-mode-card' : ''}`}
+            style={{ ...style, color: textColor }}
             onClick={onClick}
         >
-            <div className="fut-card-bg">
+            <div className="fut-card-bg" style={{
+                background: printMode ? '#fff' : undefined,
+                borderColor: printMode ? '#000' : undefined,
+                borderWidth: printMode ? '2px' : undefined,
+                boxShadow: printMode ? 'none' : undefined,
+                color: textColor
+            }}>
 
-                {/* Top Section: Info Col + Image (Reverted structure) */}
+                {/* Top Section */}
                 <div className="card-top-section">
 
-                    <div className="info-column">
+                    <div className="info-column" style={{ color: textColor, textShadow: printMode ? 'none' : undefined }}>
                         <div className="rating">{displayRating}</div>
-                        <div className="position">{position}</div>
+                        <div className="position" style={{ borderColor: printMode ? '#000' : undefined }}>{position}</div>
 
                         <div className="nation-flag" title={player.strNationality}>
                             {flagUrl ? (
@@ -78,7 +86,6 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
                                 <span style={{ fontSize: '10px', fontWeight: 'bold', marginTop: '5px' }}>{player.strNationality?.substring(0, 3).toUpperCase()}</span>
                             )}
                         </div>
-
                     </div>
 
                     <div className="player-image-container">
@@ -87,6 +94,7 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
                             alt={player.strPlayer}
                             className="player-cutout"
                             crossOrigin="anonymous"
+                            style={{ filter: undefined }}
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.style.opacity = 0;
@@ -95,9 +103,16 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
                     </div>
                 </div>
 
-                {/* Bottom Section: Name + Stats */}
-                <div className="card-bottom-section">
-                    <div className="player-name">{lastName}</div>
+                {/* Bottom Section */}
+                <div className="card-bottom-section" style={{
+                    background: printMode ? 'transparent' : undefined,
+                    borderTop: printMode ? '1px solid #000' : undefined
+                }}>
+                    <div className="player-name" style={{
+                        borderColor: printMode ? '#000' : undefined,
+                        color: textColor,
+                        textShadow: printMode ? 'none' : undefined
+                    }}>{lastName}</div>
 
                     <div className="stat-grid">
                         <div className="stat-item"><span className="val">{getSimulatedStat(player.idPlayer, 'pac')}</span> <span className="label">PAC</span></div>
@@ -111,7 +126,7 @@ const PlayerCard = ({ player, onClick, style, showRemove, onRemove, onEdit }) =>
 
             </div>
 
-            {showRemove && (
+            {showRemove && !printMode && (
                 <>
                     <button
                         className="remove-btn"

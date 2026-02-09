@@ -26,6 +26,8 @@ function App() {
   const [fileSize, setFileSize] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [printMode, setPrintMode] = useState(true); // Default to print-friendly 
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const squadStats = calculateSquadStats(squad);
   const chemistry = calculateChemistry(squad, formation);
@@ -79,7 +81,7 @@ function App() {
       quality: 0.95,
       width: targetWidth * scale,
       height: targetHeight * scale,
-      bgcolor: '#0f0f0f', // Dark background matching app
+      bgcolor: printMode ? '#ffffff' : '#0f0f0f',
       style: {
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
@@ -140,7 +142,7 @@ function App() {
               border: '1px solid #fff',
               padding: '8px 16px',
               borderRadius: '4px',
-              fontSize: '14px',
+              fontSize: '12px',
               fontFamily: 'var(--font-display)',
               cursor: 'pointer',
               background: 'transparent'
@@ -164,7 +166,10 @@ function App() {
             RESET SQUAD
           </button>
           <button
-            onClick={handleDownload}
+            onClick={() => {
+              setDownloadUrl(null);
+              setIsExportModalOpen(true);
+            }}
             className="download-btn"
             disabled={isGenerating}
             style={{
@@ -207,12 +212,13 @@ function App() {
             onPositionClick={handlePositionClick}
             onRemovePlayer={removePlayer}
             onEditPlayer={(posId) => setEditingPosition(posId)}
+            printMode={isGenerating && printMode}
           />
         </div>
       </main>
 
-      {/* Manual Download Modal */}
-      {downloadUrl && (
+      {/* Export Configuration & Download Modal */}
+      {isExportModalOpen && (
         <div className="modal-overlay" style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)',
@@ -227,150 +233,155 @@ function App() {
             border: '2px solid var(--primary)',
             textAlign: 'center',
             boxShadow: '0 0 50px rgba(0,255,136,0.3)',
-            maxWidth: '400px'
+            maxWidth: '450px',
+            width: '90%'
           }}>
-            <h3 style={{ color: '#fff', marginTop: 0 }}>High-Res Image ({fileSize}KB)</h3>
+            {!downloadUrl && !isGenerating ? (
+              <>
+                <h3 style={{ color: '#fff', marginTop: 0 }}>Export Squad Image</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '20px' }}>
+                  Generate a high-resolution PNG of your squad (Letter size).
+                </p>
 
-            {/* Preview Image */}
-            <div style={{
-              margin: '15px 0',
-              background: '#222',
-              padding: '5px',
-              borderRadius: '4px',
-              minHeight: '150px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}>
-              <img src={downloadUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', display: 'block' }} />
-            </div>
+                <div style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  marginBottom: '20px',
+                  textAlign: 'left'
+                }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    color: '#fff',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={printMode}
+                      onChange={(e) => setPrintMode(e.target.checked)}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    Print Friendly Mode
+                  </label>
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '8px', marginLeft: '28px' }}>
+                    Removes dark backgrounds and uses black text. Better for printing!
+                  </p>
+                </div>
 
-            <a
-              href={downloadUrl}
-              download={`fc26-squad-${Date.now()}.png`}
-              className="save-btn"
-              style={{
-                display: 'block',
-                width: '100%',
-                padding: '15px',
-                background: 'var(--primary)',
-                color: '#000',
-                fontWeight: 'bold',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                marginBottom: '15px',
-                fontSize: '16px',
-                cursor: 'pointer'
-              }}
-              onClick={() => setTimeout(() => {
-                setDownloadUrl(null);
-                URL.revokeObjectURL(downloadUrl);
-              }, 500)}
-            >
-              SAVE FILE
-            </a>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => setIsExportModalOpen(false)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'transparent',
+                      border: '1px solid #555',
+                      color: '#aaa',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    style={{
+                      flex: 2,
+                      padding: '12px',
+                      background: 'var(--primary)',
+                      color: '#000',
+                      fontWeight: 'bold',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    GENERATE PNG
+                  </button>
+                </div>
+              </>
+            ) : isGenerating ? (
+              <div style={{ padding: '40px 0' }}>
+                <div className="spinner" style={{
+                  border: '4px solid rgba(255,255,255,0.1)',
+                  borderTop: '4px solid var(--primary)',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  margin: '0 auto 20px',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <h3 style={{ color: '#fff', margin: 0 }}>{statusMessage || 'Processing...'}</h3>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ color: '#fff', marginTop: 0 }}>Ready to Save! ({fileSize}KB)</h3>
 
-            <button
-              onClick={() => {
-                setDownloadUrl(null);
-                URL.revokeObjectURL(downloadUrl);
-              }}
-              style={{
-                background: 'transparent',
-                border: '1px solid #555',
-                color: '#aaa',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Close
-            </button>
+                <div style={{
+                  margin: '15px 0',
+                  background: '#222',
+                  padding: '5px',
+                  borderRadius: '4px',
+                  minHeight: '150px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden'
+                }}>
+                  <img src={downloadUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', display: 'block' }} />
+                </div>
+
+                <a
+                  href={downloadUrl}
+                  download={`fc26-squad-${Date.now()}.png`}
+                  className="save-btn"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '15px',
+                    background: 'var(--primary)',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    marginBottom: '15px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setTimeout(() => {
+                      setDownloadUrl(null);
+                      setIsExportModalOpen(false);
+                      URL.revokeObjectURL(downloadUrl);
+                    }, 500);
+                  }}
+                >
+                  SAVE IMAGE
+                </a>
+
+                <button
+                  onClick={() => {
+                    setDownloadUrl(null);
+                    URL.revokeObjectURL(downloadUrl);
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #555',
+                    color: '#aaa',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back to Settings
+                </button>
+              </>
+            )}
           </div>
         </div>
-      )}
-
-      {/* Search Modal */}
-      {selectedPosition && (
-        <div className="modal-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 2000,
-          backdropFilter: 'blur(5px)'
-        }}
-          onClick={() => setSelectedPosition(null)}
-        >
-          <div className="modal-content" style={{
-            background: 'var(--surface)',
-            width: '90%', maxWidth: '500px',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-            animation: 'slideUp 0.3s ease'
-          }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '15px' }}>Select Player for {selectedPosition.toUpperCase()}</h3>
-            <PlayerSearch onSelectPlayer={handlePlayerSelect} />
-            <button
-              onClick={() => setSelectedPosition(null)}
-              style={{
-                marginTop: '15px',
-                width: '100%',
-                padding: '10px',
-                background: 'rgba(255,255,255,0.1)',
-                color: '#fff',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showSquadManager && (
-        <SquadManager
-          squad={squad}
-          formation={formation}
-          savedSquads={savedSquads}
-          onSaveSnapshot={saveSnapshot}
-          onLoadSnapshot={(snap) => { loadSnapshot(snap); setShowSquadManager(false); }}
-          onDeleteSnapshot={deleteSnapshot}
-          onImport={(data) => { importSquad(data); setShowSquadManager(false); }}
-          onClose={() => setShowSquadManager(false)}
-        />
-      )}
-
-      {editingPosition && squad[editingPosition] && (
-        <PlayerEditor
-          player={squad[editingPosition]}
-          onSave={(updatedPlayer) => {
-            updatePlayerStats(editingPosition, updatedPlayer);
-            setEditingPosition(null);
-          }}
-          onCancel={() => setEditingPosition(null)}
-        />
-      )}
-
-      {viewingPosition && squad[viewingPosition] && (
-        <PlayerDetailsModal
-          player={squad[viewingPosition]}
-          onClose={() => setViewingPosition(null)}
-          onEdit={() => {
-            setEditingPosition(viewingPosition);
-            setViewingPosition(null);
-          }}
-          onRemove={() => {
-            removePlayer(viewingPosition);
-            setViewingPosition(null);
-          }}
-        />
       )}
 
       {/* Styles for simple animation */}
@@ -378,6 +389,10 @@ function App() {
         @keyframes slideUp {
           from { transform: translateY(20px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
